@@ -1,14 +1,20 @@
-let s;
+const RED = [1.0,0.0,0.0,1.0];
+const YELLOW = [1.0,1.0,0.0,1.0];
+const BLUE = [0.0,0.0,1.0,1.0];
 
-const A = 0.000001, B = -0.00019, D = 1;
+const RYB = RED.concat(YELLOW).concat(BLUE);
+let HeatMap;
+
+console.log(RYB);
+
+
+function preload() {
+  HeatMap = loadShader('shader.vert', 'shader.frag')
+}
 
 function setup() {
-  createCanvas(windowWidth,windowHeight);
+  createCanvas(windowWidth,windowHeight, WEBGL);
 
-
-  s = createVector(0,0);
-  stroke(255);
-  point(s.x,s.y);
 
 
 }
@@ -16,22 +22,25 @@ function setup() {
 
 function draw() {
   background(0);
-  translate(width/2,height/2);
-
-  s.set(mouseX-width/2, mouseY-height/2);
   
-  for (let i = 0; i < 100; i++) {
-    for (let j = 0; j < 100; j++) {
-      //let v = 10/ ((i*i)+(j*j)) - 0.1;
-      let d = sqrt((i*i)+(j*j));
-      let v = A*pow(d,3) + B*d*d+1;
-      stroke(v*255);
-      point(s.x-i,s.y-j);
-      point(s.x-i,s.y+j);
-      point(s.x+i,s.y-j);
-      point(s.x+i,s.y+j);
-    }
-  }
+  shader(HeatMap);
+
+  HeatMap.setUniform("source", [0.5,0.5]);
+  HeatMap.setUniform("fadeDistance", mouseX*2/width);
+  rect(0,0,width,height);
+  
+  // for (let i = 0; i < 100; i++) {
+  //   for (let j = 0; j < 100; j++) {
+  //     //let v = 10/ ((i*i)+(j*j)) - 0.1;
+  //     let d = sqrt((i*i)+(j*j));
+  //     let v = A*pow(d,3) + B*d*d+1;
+  //     stroke(v*255);
+  //     point(s.x-i,s.y-j);
+  //     point(s.x-i,s.y+j);
+  //     point(s.x+i,s.y-j);
+  //     point(s.x+i,s.y+j);
+  //   }
+  // }
 }
 
 function diffuse(x,y) {

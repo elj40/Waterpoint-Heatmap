@@ -1,58 +1,37 @@
-let values = [];
-let nextValues = [];
+let s;
 
-let source;
+const A = 0.000001, B = -0.00019, D = 1;
 
 function setup() {
   createCanvas(windowWidth,windowHeight);
-  background(230);
-
-  loadPixels();
-
-  for (let i = 0; i < pixels.length/4; i++) {
-    values[i] = 0;
-    nextValues[i] = 0;
-    pixels[i*4+0] = 0;
-    pixels[i*4+1] = 0;
-    pixels[i*4+2] = 0;
-    pixels[i*4+3] = 255;
-  }
 
 
-  updatePixels();
+  s = createVector(0,0);
+  stroke(255);
+  point(s.x,s.y);
 
-  background(0);
-  fill(255);
-  noStroke();
-  rect(0,0, 30);
-
-  loadPixels();
-
-  for (let i = 0; i < pixels.length/4; i++) {
-    values[i] = (pixels[i+0]+pixels[i+1]+pixels[i+2])/255/3;
-  }
-  
-  let dy = 0, dx = 0, dw = 100, dh = 120;
-  for (let y = dy+1; y < dy+dh-1; y++) {
-    for (let x = dx+1; x < dx+dw-1; x++) {
-      let i = getI(x,y);
-      diffuse(x,y);
-      //console.log(nextValues[getI(x,y)]);
-    }
-  }
-  updatePixels(dx,dy,dw,dh);
-
-
-
-  fill(255)
-  text(frameRate(), 20, height-20);
 
 }
 
 
 function draw() {
-  
+  background(0);
+  translate(width/2,height/2);
 
+  s.set(mouseX-width/2, mouseY-height/2);
+  
+  for (let i = 0; i < 100; i++) {
+    for (let j = 0; j < 100; j++) {
+      //let v = 10/ ((i*i)+(j*j)) - 0.1;
+      let d = sqrt((i*i)+(j*j));
+      let v = A*pow(d,3) + B*d*d+1;
+      stroke(v*255);
+      point(s.x-i,s.y-j);
+      point(s.x-i,s.y+j);
+      point(s.x+i,s.y-j);
+      point(s.x+i,s.y+j);
+    }
+  }
 }
 
 function diffuse(x,y) {

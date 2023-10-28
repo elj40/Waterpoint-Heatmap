@@ -1,70 +1,107 @@
-const RED = [1.0,0.0,0.0,1.0];
-const YELLOW = [1.0,1.0,0.0,1.0];
-const BLUE = [0.0,0.0,1.0,1.0];
-
-const RYB = RED.concat(YELLOW).concat(BLUE);
 let HeatMap;
+let shaderCanvas;
+let drawCanvas;
 
-console.log(RYB);
+let sources = [];
+let weights = [];
 
+let river1 = [];
+let river2 = [];
+const RIVER_WIDTH = 40;
 
 function preload() {
   HeatMap = loadShader('shader.vert', 'shader.frag')
 }
 
 function setup() {
-  createCanvas(windowWidth,windowHeight, WEBGL);
+  createCanvas(windowWidth*0.75,windowHeight*0.8);
+  shaderCanvas = createGraphics(windowWidth*0.75,windowHeight*0.8, WEBGL);
 
-
-
+  createRivers();
 }
-
 
 function draw() {
-  background(0);
+  background(0,255,0);
   
-  shader(HeatMap);
+  shaderCanvas.shader(HeatMap);
 
-  HeatMap.setUniform("source", [0.5,0.5]);
-  HeatMap.setUniform("fadeDistance", mouseX*2/width);
-  rect(0,0,width,height);
-  
-  // for (let i = 0; i < 100; i++) {
-  //   for (let j = 0; j < 100; j++) {
-  //     //let v = 10/ ((i*i)+(j*j)) - 0.1;
-  //     let d = sqrt((i*i)+(j*j));
-  //     let v = A*pow(d,3) + B*d*d+1;
-  //     stroke(v*255);
-  //     point(s.x-i,s.y-j);
-  //     point(s.x-i,s.y+j);
-  //     point(s.x+i,s.y-j);
-  //     point(s.x+i,s.y+j);
-  //   }
-  // }
+  HeatMap.setUniform("sLength", weights.length);
+
+  HeatMap.setUniform("sources", sources);
+  HeatMap.setUniform("weights", weights);
+  HeatMap.setUniform("fadeDistance", 0.5);
+  shaderCanvas.rect(0,0,width,height);
+
+
+  image(shaderCanvas, 0, 0);
+  drawRivers();
+
 }
 
-function diffuse(x,y) {
-  let total = 0;
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      //if (i==0 && j==0) continue;
-        total += values[getI(x+i,y+j)];
+function mousePressed() {
+  sources = sources.concat([mouseX/width, mouseY/height]);
+  weights.push(1);
+  console.log(sources);
+}
 
-    }
+function createRivers() {
+
+  const rw = RIVER_WIDTH/2;
+  const NOISE_STRENGTH = 30;
+  const WALK_SPEED = 60;
+  //River 1;
+  let walker = [100,-60];
+
+  while (walker[1] < height) {
     
+    weights.push(1);
+
+    walker[0] += (noise(walker[0],walker[1])*2-1)*NOISE_STRENGTH;
+    walker[1] += WALK_SPEED;
+
+    river1.push([walker[0], walker[1]]);
+    sources.push(walker[0]/width);
+    sources.push(1-walker[1]/height);
+
   }
-  let index = getI(x,y);
-  
-  let avg = total/9;
-  console.log(avg);
-  nextValues[index] = avg;
-  pixels[index*4+0] = avg*255; 
-  pixels[index*4+1] = avg*255; 
-  pixels[index*4+2] = avg*255; 
-  pixels[index*4+3] = 255; 
+
+  walker = [width-100,-60];
+
+  while (walker[1] < height) {
+    
+    weights.push(1);
+
+    walker[0] += (noise(walker[0],walker[1])-1)*NOISE_STRENGTH;
+    walker[1] += WALK_SPEED;
+
+    river2.push([walker[0], walker[1]]);
+    sources.push(walker[0]/width);
+    sources.push(1-walker[1]/height);
+
+  }
+
 
 }
 
-function getI(x,y) {
-  return y*width + x;
+function drawRivers() {
+  noFill();
+  strokeWeight(RIVER_WIDTH);
+  stroke(100,100,255);
+  beginShape()
+    river1.forEach((k)=> {
+      vertex(k[0], k[1]);
+      circle(k[0],k[1]);
+    })
+  endShape();
+
+  beginShape()
+    river2.forEach((k)=> {
+      vertex(k[0], k[1]);
+      circle(k[0],k[1]);
+    })
+  endShape();
+  strokeWeight(1);
+  stroke(0);
+  fill(255);
 }
+

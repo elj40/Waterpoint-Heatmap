@@ -13,11 +13,8 @@ uniform float fadeDistance;
 
 
 void main() {
-
-    
-
     vec4 RED = vec4(1.,0.,0.,1.);
-    vec4 YELLOW = vec4(1.,1.,0.,1.);
+    vec4 YELLOW = vec4(216./255., 246./255., 0.,1.);
     vec4 GREEN = vec4(0.,1.,0.,1.);
     vec4 ALPHA = vec4(GREEN.x,GREEN.y,GREEN.z,0.);
 
@@ -25,14 +22,13 @@ void main() {
 
     float shortest = 2.;
     float totalDistance = 0.;
-    for (int i = 0; i < SOURCE_SPACE; i++) {
+      for (int i = 0; i < SOURCE_SPACE; i++) {
         float dx = pow(sources[i].x-uv.x, 2.);
         float dy = pow(sources[i].y-uv.y, 2.);
         float dist = sqrt(dx+dy) * weights[i];
 
         totalDistance += dist;
         shortest = dist < shortest ? dist : shortest;
-
         if (i >= sLength-1) {break;}
     }
 
@@ -43,6 +39,6 @@ void main() {
 
     float v = avgDist/fadeDistance;
 
-    vec4 col = (v < 0.333) ? mix(RED,YELLOW,v*3.) : (v < 0.666) ? mix(YELLOW,ALPHA,v*3.-1.) : mix(GREEN,ALPHA, v*3.-2.);
+    vec4 col = (v < 0.333) ? mix(RED,YELLOW,v*3.) : (v < 0.666) ? mix(YELLOW,GREEN,v*3.-1.) : GREEN;
     gl_FragColor = col;
 }

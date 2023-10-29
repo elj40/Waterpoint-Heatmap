@@ -1,9 +1,12 @@
 let HeatMap;
 let shaderCanvas;
-let drawCanvas;
 
-let sources = [];
-let weights = [];
+const SOURCE_SPACE = 30;
+
+let sources = new Array(SOURCE_SPACE*2);
+let weights = new Array(SOURCE_SPACE);
+let size = 0;
+let sourceSize = 0;
 
 let river1 = [];
 let river2 = [];
@@ -14,72 +17,91 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(windowWidth*0.75,windowHeight*0.8);
-  shaderCanvas = createGraphics(windowWidth*0.75,windowHeight*0.8, WEBGL);
+  createCanvas(windowWidth,windowHeight);
+  shaderCanvas = createGraphics(windowWidth,windowHeight, WEBGL);
 
+  for (let i = 0; i < SOURCE_SPACE; i++) {
+    sources[i*2] = 0;
+    sources[i*2+1] = 0;
+    weights[i] = 1;
+  }
   createRivers();
+  drawCanvas();
 }
 
 function draw() {
+  
+  //drawCanvas();
+}
+
+function mousePressed() {
+  if (mouseX>width/20 && mouseX<width/20*19 && mouseY>height/20 && mouseY<height/20*19) {
+    sources[size*2] = mouseX/width;
+    sources[size*2+1] = 1-mouseY/height;
+    weights[size] = 2;
+    size++;
+
+    HeatMap.setUniform("sources", sources);
+    console.log(sources);
+
+    drawCanvas();
+  }
+}
+
+function drawCanvas() {
   background(0,255,0);
   
   shaderCanvas.shader(HeatMap);
 
-  HeatMap.setUniform("sLength", weights.length);
+  HeatMap.setUniform("sLength", size);
 
-  HeatMap.setUniform("sources", sources);
-  HeatMap.setUniform("weights", weights);
+  HeatMap.setUniform("sources", sources.map((s)=>{return s}));
+  HeatMap.setUniform("weights", weights.map((w)=>{return w}));
   HeatMap.setUniform("fadeDistance", 0.5);
   shaderCanvas.rect(0,0,width,height);
 
 
   image(shaderCanvas, 0, 0);
   drawRivers();
-
-}
-
-function mousePressed() {
-  sources = sources.concat([mouseX/width, mouseY/height]);
-  weights.push(1);
-  console.log(sources);
 }
 
 function createRivers() {
 
   const rw = RIVER_WIDTH/2;
   const NOISE_STRENGTH = 30;
-  const WALK_SPEED = 60;
+  const WALK_SPEED = height/10;
   //River 1;
-  let walker = [100,-60];
+  let walker = [100,-WALK_SPEED];
 
   while (walker[1] < height) {
     
-    weights.push(1);
+    weights[size] = 1;
 
     walker[0] += (noise(walker[0],walker[1])*2-1)*NOISE_STRENGTH;
     walker[1] += WALK_SPEED;
 
     river1.push([walker[0], walker[1]]);
-    sources.push(walker[0]/width);
-    sources.push(1-walker[1]/height);
-
+    sources[size*2] = walker[0]/width;
+    sources[size*2+1] = 1-walker[1]/height;
+    size++;
+    sourceSize++;
   }
-
-  walker = [width-100,-60];
+  //River 2
+  walker = [width-100,-WALK_SPEED];
 
   while (walker[1] < height) {
     
-    weights.push(1);
+    weights[size] = 1;
 
     walker[0] += (noise(walker[0],walker[1])-1)*NOISE_STRENGTH;
     walker[1] += WALK_SPEED;
 
     river2.push([walker[0], walker[1]]);
-    sources.push(walker[0]/width);
-    sources.push(1-walker[1]/height);
-
+    sources[size*2] = walker[0]/width;
+    sources[size*2+1] = 1-walker[1]/height;
+    size++;
+    sourceSize++;
   }
-
 
 }
 

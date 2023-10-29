@@ -7,11 +7,23 @@
   <title>Waterpoint Heatmap | Eli Joubert</title>
   <link rel="stylesheet" href="style.css">
   <script src="p5.min.js"></script>
-  <script src="sketch.js"></script>
   <script src="Grid.js"></script>
+  
 </head>
 
 <body>
+  <div class="toolbox">
+    <details>
+      <summary>Toolbox</summary>
+      <label for="river-weight"></label>
+      <input type="range" min="0" max="3" step="0.05"name="river-weight" id="river-weight">
+      <label for="waterpoint-weight"></label>
+      <input type="range" min="0" max="3" step="0.05"name="waterpoint-weight" id="waterpoint-weight">
+    </details>
+  </div>
+  <script src="dom.js"></script>
+  <script src="sketch.js"></script>
+
 </body>
 
 </html>

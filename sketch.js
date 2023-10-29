@@ -10,15 +10,22 @@ let sourceSize = 0;
 
 let river1 = [];
 let river2 = [];
-const RIVER_WIDTH = 40;
+const RIVER_WIDTH = 80;
+const WATERPOINT_WIDTH = 30;
+
+let masterWeight = 0.5;
 
 function preload() {
   HeatMap = loadShader('shader.vert', 'shader.frag')
 }
 
 function setup() {
-  createCanvas(windowWidth,windowHeight);
-  shaderCanvas = createGraphics(windowWidth,windowHeight, WEBGL);
+
+  for (let element of document.getElementsByClassName("p5Canvas")) {
+    element.addEventListener("contextmenu", (e) => e.preventDefault());
+  }
+  canvas = createCanvas(windowWidth,windowWidth);
+  shaderCanvas = createGraphics(windowWidth,windowWidth, WEBGL);
 
   for (let i = 0; i < SOURCE_SPACE; i++) {
     sources[i*2] = 0;
@@ -29,22 +36,17 @@ function setup() {
   drawCanvas();
 }
 
-function draw() {
-  
-  //drawCanvas();
-}
-
 function mousePressed() {
-  if (mouseX>width/20 && mouseX<width/20*19 && mouseY>height/20 && mouseY<height/20*19) {
+  if (mouseX>width/20 && mouseX<width/20*19 && mouseY>height/20 && mouseY<height/20*19 && mouseButton==LEFT) {
     sources[size*2] = mouseX/width;
     sources[size*2+1] = 1-mouseY/height;
     weights[size] = 2;
     size++;
 
-    HeatMap.setUniform("sources", sources);
-    console.log(sources);
-
     drawCanvas();
+  }
+  if (mouseButton == RIGHT) {
+    removeWaterPoint();
   }
 }
 
@@ -57,12 +59,31 @@ function drawCanvas() {
 
   HeatMap.setUniform("sources", sources.map((s)=>{return s}));
   HeatMap.setUniform("weights", weights.map((w)=>{return w}));
-  HeatMap.setUniform("fadeDistance", 0.5);
+  HeatMap.setUniform("fadeDistance", masterWeight);
   shaderCanvas.rect(0,0,width,height);
 
-
   image(shaderCanvas, 0, 0);
+
+  push();
+  noStroke();
+  fill(100,100,255);
+  for (let i = sourceSize; i < SOURCE_SPACE; i++) {
+    let sx = sources[i*2], sy = 1-sources[i*2+1];
+    circle(sx*width,sy*height,WATERPOINT_WIDTH);
+  }
+  pop();
   drawRivers();
+}
+
+function removeWaterPoint() {
+  weights[size-1] = 1;
+  sources[size*2-2] = 0;
+  sources[size*2-1] = 0;
+
+  size--;
+  sourceSize = min(sourceSize, size);
+
+  drawCanvas();
 }
 
 function createRivers() {
@@ -73,7 +94,7 @@ function createRivers() {
   //River 1;
   let walker = [100,-WALK_SPEED];
 
-  while (walker[1] < height) {
+  while (walker[1] < windowHeight+WALK_SPEED) {
     
     weights[size] = 1;
 
@@ -89,7 +110,7 @@ function createRivers() {
   //River 2
   walker = [width-100,-WALK_SPEED];
 
-  while (walker[1] < height) {
+  while (walker[1] < windowHeight+WALK_SPEED) {
     
     weights[size] = 1;
 

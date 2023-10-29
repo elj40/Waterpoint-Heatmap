@@ -7,18 +7,31 @@
   <title>Waterpoint Heatmap | Eli Joubert</title>
   <link rel="stylesheet" href="style.css">
   <script src="p5.min.js"></script>
-  <script src="Grid.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
 </head>
 
 <body>
-  <div class="toolbox">
+  <div class="toolbox bar">
     <details>
       <summary>Toolbox</summary>
-      <label for="river-weight"></label>
-      <input type="range" min="0" max="3" step="0.05"name="river-weight" id="river-weight">
-      <label for="waterpoint-weight"></label>
-      <input type="range" min="0" max="3" step="0.05"name="waterpoint-weight" id="waterpoint-weight">
+      <div class="tools">
+        <!-- <label for="river-weight">River Weights</label>
+        <input type="range" min="0" max="3" step="0.05"name="river-weight" id="river-weight">
+        <label for="waterpoint-weight" class="range">Waypoint Weights</label>
+        <input type="range" min="0" max="3" step="0.05"name="waterpoint-weight" id="waterpoint-weight"> -->
+        <label for="general-weight" class="range">Master Weights</label>
+        <input type="range" min="0" max="2" step="0.01"name="waterpoint-weight" id="general-weight">
+      </div>
+    </details>
+  </div>
+  <div class="graphs bar">
+    <details open>
+      <summary>Graphs</summary>
+      <div class="chart-wrapper">
+      <div class="chart"><canvas  id="pressure" width="500"height="500"></canvas></div>
+      <div class="chart"><canvas  id="capacity" width="500"height="500"></canvas></div>
+      </div>
     </details>
   </div>
   <script src="dom.js"></script>

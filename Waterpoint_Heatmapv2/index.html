@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+    <head>
+        <title>Effect of waterpoints</title>
+        <link rel="stylesheet" href="style.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    </head>
+    <body>
+        <div class="toolbox card">
+            <details>
+                <summary>Toolbox</summary>
+                <label for="wp-weight">Waypoint Strength</label>
+                <input type="range" name="wp-weight" id="wp-weight" min="0"max="3"value='1'step="0.01">
+                <!-- <label for="river-weight">River Strength</label>
+                <input type="range" name="wp-weight" id="river-weight"min="0"max="100"value='40'>
+            --></details> 
+        </div>
+        <div class="graphs card">
+            <details open>
+                <summary>Graph</summary>
+                <div><canvas id="chart" style="width:100%;max-width:700px;max-height:300px"></canvas></div>
+            </details>
+        </div>
+        <div class="draw-area" id="draw-area">
+            <div class="river-area river1"><div class="river"></div></div>
+            <div class="river-area river2"><div class="river"></div></div>
+            
+        </div>
+        <script src="script.js"></script>
+    </body>
+</html>

@@ -1,77 +1,96 @@
-// const riverWeightEl = document.getElementById("river-weight");
-// const waterPWeightEl = document.getElementById("waterpoint-weight");
-const generalWeightEl = document.getElementById("general-weight");
-
-const pressureChartC = document.getElementById("pressure");
-const capacityChartC = document.getElementById("capacity");
-
-
-document.body.addEventListener("contextmenu",(e)=>{e.preventDefault();});
-
-
-let pressure = new Chart(pressureChartC, {
-  type: 'line',
-  data: {
-    labels: ["","","","","","Water Holes Added","","","","","",""],
-    scales: {y: {
-      max: 1,
-      min: 0,
-      ticks: {
-        stepSize: 0.5
-    }
-    }},
-    datasets: [{
-      label: 'Environment Pressure',
-      data: [0.5,0.52,0.48,0.52,0.48,0.75,1,0.6,0.32,0.35,0.32,0.35],
-      fill: true,
-      borderColor: 'rgb(75, 192, 192)',
-      tension: 0.3 
-    }]
-  }}) 
-
-let capacity = new Chart(capacityChartC, {
-  type: 'line',
-  data: {
-    labels: ["","","","","Water Holes Added","","","","","","",""],
-    scales: {y: {
-      max: 1,
-      min: 0,
-    }},
-    datasets: [{
-      label: 'Environment Capacity',
-      data: [0.5,0.5,0.5,0.5,0.45,0.4,0.3,0.25,0.2,0.2,0.2,0.2],
-      fill: true,
-      borderColor: 'rgb(75, 192, 0)',
-      tension: 0.3 
-    }]
-  }
+document.body.addEventListener("contextmenu", (e)=>{
+  e.preventDefault();
 })
 
+const intensityInput = document.getElementById("intensity");
+const resInput = document.getElementById("resolution");
 
-// riverWeightEl.addEventListener("input", (e)=> {
-//   console.log(e.target.value, sourceSize, size)
-//   updateWeights(e.target.value, sourceSize);
-// })
+var pressure_data = []
+var effect_data = [];
 
-// waterPWeightEl.addEventListener("input", (e)=> {
-//   updateWeights(e.target.value, sourceSize, true);
-// })
+var pressureGraph = new CanvasJS.Chart("pressure", {
+  title: {
+    text: "Pressure on environment"
+  },
+  data: [{
+    type: "spline",
+    lineColor: "blue",
+    dataPoints: pressure_data
+  }]
+})
 
-generalWeightEl.addEventListener("input", (e)=> {
-  masterWeight = float(e.target.value);
+pressureGraph.render();
+
+var effectGraph = new CanvasJS.Chart("effect", {
+  title: {
+    text: "Capacity after X years"
+  },
+  data: [{
+    type: "spline",
+    lineColor: "green",
+    markerSize: 0,
+    dataPoints: effect_data
+  }]
+})
+
+effectGraph.render()
+
+intensityInput.addEventListener("input",(e)=>{
+  PRESSURE = BASE_PRESSURE;
+  INTENSITY = float(intensityInput.value);
+  drawCanvas()
+  resetGraphs();
+  updateGraphs();
+});
+
+resInput.addEventListener("input",()=> {
+  exportEnabled = true;
+  PRESSURE = BASE_PRESSURE;
+  RESOLUTION = int(resInput.value);
+  SCALE = width/RESOLUTION;
+  sources = []
+  createRivers();
   drawCanvas();
-})
+  resetGraphs();
+  updateGraphs();
 
+});
 
-function updateWeights(v,i,waterP = false) {
-    let start = 0 ,end = i;
-    if (waterP) start = i, end = size;
+function updateGraphs() {
+  pressure_data.push({y: PRESSURE})
+  pressureGraph.render();
 
-    console.log(weights, float(v));
+  effect_data.push({y: 2/PRESSURE});
+  effectGraph.render();
+}
+
+function resetGraphs() {
+
+  pressure_data = []
+  effect_data = [];
+
+  pressureGraph = new CanvasJS.Chart("pressure", {
+    title: {
+      text: "Pressure on environment"
+    },
+    data: [{
+      type: "spline",
+      lineColor: "blue",
+      dataPoints: pressure_data
+    }]
+  })
   
-    for (let index = start; index<end-1; i++) {
-      //weights[i] = float(v);
-    }
-
-    drawCanvas();
-  }
+  pressureGraph.render();
+  
+  effectGraph = new CanvasJS.Chart("effect", {
+    title: {
+      text: "Capacity after X years"
+    },
+    data: [{
+      type: "spline",
+      lineColor: "green",
+      markerSize: 0,
+      dataPoints: effect_data
+    }]
+  })
+}
